@@ -7,6 +7,7 @@ from discord.ext import commands, tasks
 import config
 import market_reference
 from database import Database
+from health import start_health_server
 from views import SellPanelView, SellRequestControlView, SupportTicketCloseView, TicketControlView
 
 logging.basicConfig(level=logging.INFO)
@@ -34,6 +35,11 @@ class MarketplaceBot(commands.Bot):
 
     async def setup_hook(self):
         await self.db.connect()
+
+        # Serveur HTTP minimal : requis par les plateformes "Web Service"
+        # (Render, etc.) qui exigent un port ouvert pour juger le déploiement
+        # en bonne santé. Inoffensif en local (juste un port de plus ouvert).
+        await start_health_server()
 
         # Vues persistantes : boutons/panneaux toujours fonctionnels après un
         # redémarrage du bot (custom_id statiques, contexte relu depuis la DB).
